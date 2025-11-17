@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Thanks · getsva{% endblock %}
+
+{% block content %}
+  <section class="status-panel">
+    <h2>Thank you for the insight!</h2>
+    <p>We received your responses. If you opted to leave contact info, we may follow up with a few clarifying questions.</p>
+    <a class="btn-secondary" href="{% url 'surveys:form' %}">Submit another response</a>
+  </section>
+{% endblock %}
+

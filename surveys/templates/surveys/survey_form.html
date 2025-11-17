@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Survey · getsva{% endblock %}
+
+{% block content %}
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li class="message {{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if no_questions %}
+    <section class="status-panel">
+      <h2>Survey coming soon</h2>
+      <p>The survey questions have not been published yet. Check back later.</p>
+    </section>
+  {% else %}
+    <section class="signal-board">
+      <div class="signal-text">
+        <p class="signal-eyebrow">Live signal</p>
+        <h2>Share how trust and verification really feel.</h2>
+        <p>We bundle every response into a weekly readout for the SVA product team. It’s short, unhurried, and entirely human.</p>
+      </div>
+      <dl class="signal-meta">
+        <div>
+          <dt>Questions</dt>
+          <dd>{{ question_field_pairs|length }}</dd>
+        </div>
+        <div>
+          <dt>Avg time</dt>
+          <dd>4 min</dd>
+        </div>
+        <div>
+          <dt>Expect</dt>
+          <dd>Honest takes</dd>
+        </div>
+      </dl>
+    </section>
+
+    <form method="post" class="survey-flow">
+      {% csrf_token %}
+
+      <section class="flow-slot">
+        <header class="flow-slot-head">
+          <p class="slot-label">Identity snapshot</p>
+          <p>Who are you designing or building for today?</p>
+        </header>
+        <div class="flow-grid">
+          <div class="form-row">
+            {{ form.respondent_name.label_tag }}
+            {{ form.respondent_name }}
+            <small>{{ form.respondent_name.help_text }}</small>
+            {{ form.respondent_name.errors }}
+          </div>
+          <div class="form-row">
+            {{ form.respondent_email.label_tag }}
+            {{ form.respondent_email }}
+            <small>{{ form.respondent_email.help_text }}</small>
+            {{ form.respondent_email.errors }}
+          </div>
+          <div class="form-row span-2">
+            {{ form.respondent_role.label_tag }}
+            {{ form.respondent_role }}
+            {{ form.respondent_role.errors }}
+          </div>
+        </div>
+      </section>
+
+      <section class="flow-slot">
+        <header class="flow-slot-head">
+          <p class="slot-label">Pulse sequence</p>
+          <p>Hover tags for context hints. Slide, type, riff.</p>
+        </header>
+        <div class="question-stack">
+          {% for item in question_field_pairs %}
+            <div class="question-line">
+              <div class="question-line-meta">
+                <span class="question-index">Q{{ forloop.counter|stringformat:"02d" }}</span>
+                <div class="question-tags">
+                  <span class="tag">{{ item.question.category }}</span>
+                  {% if item.question.target_audience == 'builders' %}
+                    <span class="tag tag-outline">Builders only</span>
+                  {% endif %}
+                  {% if item.question.note %}
+                    <span class="tag tag-outline">{{ item.question.note }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <label for="{{ item.field.id_for_label }}">{{ item.question.prompt }}</label>
+              <div class="question-body">
+                {{ item.field }}
+                {{ item.field.errors }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="flow-slot outro">
+        <p class="slot-label">Ready?</p>
+        <p>Your answers anonymize the moment you hit transmit.</p>
+        <button type="submit" class="btn-primary" style="width: auto;">Transmit responses</button>
+      </section>
+    </form>
+  {% endif %}
+{% endblock %}
+

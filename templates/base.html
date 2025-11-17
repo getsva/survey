@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Real User Survey{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body class="sva-theme">
+    <div class="bg-grid"></div>
+    <div class="bg-aurora"></div>
+
+    <div class="page-shell">
+        <header class="site-header">
+            <div class="container header-content">
+                <div class="brand">
+                    <div class="logo-mark">
+                        <img src="{% static 'img/sva_logo.png' %}" alt="SVA logo">
+                    </div>
+                    <div class="brand-copy">
+                        <p class="eyebrow">Real Identity · Trust Infrastructure</p>
+                        <h1>Real Human Usage Survey</h1>
+                    </div>
+                </div>
+                <p class="subtitle">
+                    Help the SVA team understand how builders and everyday users feel
+                    about real-identity APIs, verification, and trust on the internet.
+                </p>
+
+                <div class="header-badges">
+                    <span class="chip chip-primary">Research Sprint</span>
+                    <span class="chip chip-secondary">~5 minutes</span>
+                    <span class="chip chip-outline">Safe & anonymous</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="container main-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="site-footer">
+            <div class="container footer-content">
+                <div>
+                    <p class="footer-title">Need help?</p>
+                    <a href="mailto:anurag6569201@gmail.com">anurag6569201@gmail.com</a>
+                </div>
+                <p class="fine-print">We respect your privacy. Responses are used for product discovery only.</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
+
