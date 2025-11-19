@@ -1,23 +1,35 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Question, SurveyAnswer, SurveyResponse
+from .models import Question, QuestionOption, SurveyAnswer, SurveyResponse
 
 
 class SurveyViewTests(TestCase):
     def setUp(self):
         Question.objects.all().delete()
-        Question.objects.create(
+        q1 = Question.objects.create(
             id=1,
             category="Behavior",
             prompt="How do you manage passwords?",
             target_audience=Question.TargetAudience.ALL,
         )
-        Question.objects.create(
+        q2 = Question.objects.create(
             id=2,
             category="Builders",
             prompt="Builders only question",
             target_audience=Question.TargetAudience.BUILDERS,
+        )
+        QuestionOption.objects.create(
+            question=q1,
+            value="password_manager",
+            label="Password manager",
+            order=1,
+        )
+        QuestionOption.objects.create(
+            question=q2,
+            value="required_option",
+            label="Required option",
+            order=1,
         )
 
     def test_get_form_renders_questions(self):
@@ -30,7 +42,7 @@ class SurveyViewTests(TestCase):
             "respondent_name": "Alex",
             "respondent_email": "alex@example.com",
             "respondent_role": SurveyResponse.RespondentRole.GENERAL,
-            "question_1": "Using a password manager.",
+            "question_1": "password_manager",
             "question_2": "",
         }
         response = self.client.post(reverse("surveys:form"), data=payload)
@@ -43,7 +55,7 @@ class SurveyViewTests(TestCase):
             "respondent_name": "",
             "respondent_email": "",
             "respondent_role": SurveyResponse.RespondentRole.BUILDERS,
-            "question_1": "Answer",
+            "question_1": "password_manager",
             "question_2": "",
         }
         response = self.client.post(reverse("surveys:form"), data=payload)

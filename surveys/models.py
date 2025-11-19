@@ -26,6 +26,26 @@ class Question(models.Model):
         return f"{self.id}. {self.prompt[:50]}"
 
 
+class QuestionOption(models.Model):
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+        related_name="options",
+    )
+    value = models.CharField(max_length=50)
+    label = models.CharField(max_length=255)
+    order = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["question_id", "order", "id"]
+        unique_together = ("question", "value")
+
+    def __str__(self) -> str:
+        return f"{self.question_id} · {self.label}"
+
+
 class SurveyResponse(models.Model):
     class RespondentRole(models.TextChoices):
         GENERAL = "all", "General respondent"

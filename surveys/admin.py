@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Question, SurveyAnswer, SurveyResponse
+from .models import Question, QuestionOption, SurveyAnswer, SurveyResponse
+
+
+class QuestionOptionInline(admin.TabularInline):
+    model = QuestionOption
+    extra = 0
+    fields = ("label", "value", "order")
+    ordering = ("order", "id")
 
 
 @admin.register(Question)
@@ -9,6 +16,7 @@ class QuestionAdmin(admin.ModelAdmin):
     list_filter = ("target_audience", "is_active")
     search_fields = ("prompt", "category")
     ordering = ("id",)
+    inlines = [QuestionOptionInline]
 
 
 class SurveyAnswerInline(admin.TabularInline):

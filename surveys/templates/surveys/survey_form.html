@@ -17,93 +17,272 @@
       <p>The survey questions have not been published yet. Check back later.</p>
     </section>
   {% else %}
-    <section class="signal-board">
-      <div class="signal-text">
-        <p class="signal-eyebrow">Live signal</p>
-        <h2>Share how trust and verification really feel.</h2>
-        <p>We bundle every response into a weekly readout for the SVA product team. It’s short, unhurried, and entirely human.</p>
+    <section class="survey-intro">
+      <h1>Help Us Build a Safer, Simpler Internet.</h1>
+      <div class="intro-body">
+        <p>Hi, I'm Anurag, the founder of Sva. I'm on a mission to fix the chaos of passwords, data breaches, and fake accounts. This is a short, 3-minute survey to understand your real-world experiences. Your honest thoughts are invaluable.</p>
       </div>
-      <dl class="signal-meta">
-        <div>
-          <dt>Questions</dt>
-          <dd>{{ question_field_pairs|length }}</dd>
-        </div>
-        <div>
-          <dt>Avg time</dt>
-          <dd>4 min</dd>
-        </div>
-        <div>
-          <dt>Expect</dt>
-          <dd>Honest takes</dd>
-        </div>
-      </dl>
     </section>
 
     <form method="post" class="survey-flow">
       {% csrf_token %}
 
-      <section class="flow-slot">
-        <header class="flow-slot-head">
-          <p class="slot-label">Identity snapshot</p>
-          <p>Who are you designing or building for today?</p>
-        </header>
-        <div class="flow-grid">
-          <div class="form-row">
-            {{ form.respondent_name.label_tag }}
+      {% if form.errors %}
+        <div class="form-errors" style="background: #fee; border: 1px solid #fcc; border-radius: 8px; padding: 1rem; margin-bottom: 2rem;">
+          <strong>Please correct the following errors:</strong>
+          <ul style="margin: 0.5rem 0 0; padding-left: 1.5rem;">
+            {% for field, errors in form.errors.items %}
+              {% for error in errors %}
+                <li>{{ field }}: {{ error }}</li>
+              {% endfor %}
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <!-- Hidden respondent_role field for backward compatibility -->
+      <div style="display: none;">
+        {{ form.respondent_role }}
+      </div>
+
+      <!-- Optional contact info at top -->
+      <section class="contact-info-section">
+        <div class="contact-fields">
+          <div class="contact-field">
+            <label for="{{ form.respondent_name.id_for_label }}">{{ form.respondent_name.label }}</label>
             {{ form.respondent_name }}
-            <small>{{ form.respondent_name.help_text }}</small>
+            <small class="field-help">{{ form.respondent_name.help_text }}</small>
             {{ form.respondent_name.errors }}
           </div>
-          <div class="form-row">
-            {{ form.respondent_email.label_tag }}
+          <div class="contact-field">
+            <label for="{{ form.respondent_email.id_for_label }}">{{ form.respondent_email.label }}</label>
             {{ form.respondent_email }}
-            <small>{{ form.respondent_email.help_text }}</small>
+            <small class="field-help">{{ form.respondent_email.help_text }}</small>
             {{ form.respondent_email.errors }}
-          </div>
-          <div class="form-row span-2">
-            {{ form.respondent_role.label_tag }}
-            {{ form.respondent_role }}
-            {{ form.respondent_role.errors }}
           </div>
         </div>
       </section>
 
       <section class="flow-slot">
         <header class="flow-slot-head">
-          <p class="slot-label">Pulse sequence</p>
-          <p>Hover tags for context hints. Slide, type, riff.</p>
+          <p class="slot-label">Section 1: About You</p>
+          <p>Fast MCQs - Easy Wins</p>
         </header>
         <div class="question-stack">
           {% for item in question_field_pairs %}
-            <div class="question-line">
-              <div class="question-line-meta">
-                <span class="question-index">Q{{ forloop.counter|stringformat:"02d" }}</span>
-                <div class="question-tags">
-                  <span class="tag">{{ item.question.category }}</span>
-                  {% if item.question.target_audience == 'builders' %}
-                    <span class="tag tag-outline">Builders only</span>
-                  {% endif %}
-                  {% if item.question.note %}
-                    <span class="tag tag-outline">{{ item.question.note }}</span>
-                  {% endif %}
+            {% if item.question.id <= 3 %}
+              {% with field=item.field %}
+                <div class="question-line" data-question-id="{{ item.question.id }}">
+                  <div class="question-heading">
+                    <span class="question-index">Q{{ item.question.id }}</span>
+                    <div class="question-title-block">
+                      <label for="{{ field.id_for_label }}">{{ item.question.prompt }}</label>
+                    </div>
+                  </div>
+                  <div class="question-body">
+                    {% if item.is_radio %}
+                      <div class="mcq-option-grid">
+                        {% for choice in field %}
+                          <label class="mcq-option-card" for="{{ choice.id_for_label }}">
+                            {{ choice.tag }}
+                            <span class="option-content">
+                              <span class="option-label">{{ choice.choice_label }}</span>
+                            </span>
+                          </label>
+                        {% endfor %}
+                      </div>
+                    {% else %}
+                      {{ field }}
+                    {% endif %}
+                    {{ field.errors }}
+                  </div>
                 </div>
-              </div>
-              <label for="{{ item.field.id_for_label }}">{{ item.question.prompt }}</label>
-              <div class="question-body">
-                {{ item.field }}
-                {{ item.field.errors }}
-              </div>
-            </div>
+              {% endwith %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="flow-slot">
+        <header class="flow-slot-head">
+          <p class="slot-label">Section 2: The Core Problem</p>
+          <p>The "Golden" Open-Ended Questions</p>
+        </header>
+        <div class="question-stack">
+          {% for item in question_field_pairs %}
+            {% if item.question.id == 4 or item.question.id == 5 %}
+              {% with field=item.field %}
+                <div class="question-line" data-question-id="{{ item.question.id }}" {% if item.question.id == 5 %}data-builder-only="true" style="display: none;"{% endif %}>
+                  <div class="question-heading">
+                    <span class="question-index">Q{{ item.question.id }}</span>
+                    <div class="question-title-block">
+                      <label for="{{ field.id_for_label }}">{{ item.question.prompt }}</label>
+                      {% if item.question.id == 5 %}
+                        <div class="question-tags">
+                          <span class="tag tag-outline">For founders/developers only</span>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="question-body">
+                    {{ field }}
+                    {{ field.errors }}
+                  </div>
+                </div>
+              {% endwith %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="flow-slot reveal-section">
+        <div class="reveal-text">
+          <p>Thanks for that insight. Based on these problems, I'm building Sva.</p>
+          <p>For users, it's a free 'digital passport' that gives you one single, secure login for everything.</p>
+          <p>For developers, it's an API that guarantees every user is a real, verified human.</p>
+        </div>
+      </section>
+
+      <section class="flow-slot">
+        <header class="flow-slot-head">
+          <p class="slot-label">Section 3: The Solution & The Test</p>
+          <p>The Final Part</p>
+        </header>
+        <div class="question-stack">
+          {% for item in question_field_pairs %}
+            {% if item.question.id == 6 or item.question.id == 7 %}
+              {% with field=item.field %}
+                <div class="question-line" data-question-id="{{ item.question.id }}" {% if item.question.id == 7 %}data-builder-only="true" style="display: none;"{% endif %}>
+                  <div class="question-heading">
+                    <span class="question-index">Q{{ item.question.id }}</span>
+                    <div class="question-title-block">
+                      <label for="{{ field.id_for_label }}">{{ item.question.prompt }}</label>
+                      {% if item.question.id == 7 %}
+                        <div class="question-tags">
+                          <span class="tag tag-outline">For builders only</span>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="question-body">
+                    {% if item.is_radio %}
+                      <div class="mcq-option-grid">
+                        {% for choice in field %}
+                          <label class="mcq-option-card" for="{{ choice.id_for_label }}">
+                            {{ choice.tag }}
+                            <span class="option-content">
+                              <span class="option-label">{{ choice.choice_label }}</span>
+                            </span>
+                          </label>
+                        {% endfor %}
+                      </div>
+                    {% else %}
+                      {{ field }}
+                    {% endif %}
+                    {{ field.errors }}
+                  </div>
+                </div>
+              {% endwith %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="flow-slot">
+        <header class="flow-slot-head">
+          <p class="slot-label">Your Suggestions</p>
+          <p>Help us build something you'll actually want to use</p>
+        </header>
+        <div class="question-stack">
+          {% for item in question_field_pairs %}
+            {% if item.question.id == 8 %}
+              {% with field=item.field %}
+                <div class="question-line suggestion-block" data-question-id="{{ item.question.id }}">
+                  <div class="question-heading">
+                    <span class="question-index">Q{{ item.question.id }}</span>
+                    <div class="question-title-block">
+                      <label for="{{ field.id_for_label }}">{{ item.question.prompt }}</label>
+                      {% if item.question.note %}
+                        <div class="question-tags">
+                          <span class="tag tag-outline">{{ item.question.note }}</span>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="question-body">
+                    {{ field }}
+                    {{ field.errors }}
+                  </div>
+                </div>
+              {% endwith %}
+            {% endif %}
           {% endfor %}
         </div>
       </section>
 
       <section class="flow-slot outro">
-        <p class="slot-label">Ready?</p>
-        <p>Your answers anonymize the moment you hit transmit.</p>
-        <button type="submit" class="btn-primary" style="width: auto;">Transmit responses</button>
+        <div class="outro-cta">
+          <p class="slot-label">Ready?</p>
+          <p>Your answers anonymize the moment you hit transmit.</p>
+          <button type="submit" class="btn-primary">Transmit responses</button>
+        </div>
       </section>
     </form>
+
+    <script>
+      // Conditional display logic for builder-only questions
+      document.addEventListener('DOMContentLoaded', function() {
+        const q1Inputs = document.querySelectorAll('input[name="question_1"]');
+        const builderOnlyQuestions = document.querySelectorAll('[data-builder-only="true"]');
+        const respondentRoleInput = document.querySelector('input[name="respondent_role"]');
+        
+        function toggleBuilderQuestions() {
+          const selectedQ1 = document.querySelector('input[name="question_1"]:checked');
+          const isBuilder = selectedQ1 && (selectedQ1.value === 'developer' || selectedQ1.value === 'founder');
+          
+          // Update hidden respondent_role field
+          if (respondentRoleInput) {
+            respondentRoleInput.value = isBuilder ? 'builders' : 'all';
+          }
+          
+          builderOnlyQuestions.forEach(function(question) {
+            if (isBuilder) {
+              question.style.display = 'block';
+              // Make required fields actually required
+              const inputs = question.querySelectorAll('input[type="text"], textarea, input[type="radio"]');
+              inputs.forEach(function(input) {
+                if (input.type === 'radio') {
+                  // For radio buttons, we'll handle validation server-side
+                } else {
+                  input.setAttribute('required', 'required');
+                }
+              });
+            } else {
+              question.style.display = 'none';
+              // Remove required attribute when hidden
+              const inputs = question.querySelectorAll('input[type="text"], textarea');
+              inputs.forEach(function(input) {
+                input.removeAttribute('required');
+                input.value = ''; // Clear value when hidden
+              });
+              // Uncheck radio buttons
+              const radios = question.querySelectorAll('input[type="radio"]');
+              radios.forEach(function(radio) {
+                radio.checked = false;
+              });
+            }
+          });
+        }
+        
+        // Add event listeners to Q1 inputs
+        q1Inputs.forEach(function(input) {
+          input.addEventListener('change', toggleBuilderQuestions);
+        });
+        
+        // Run on page load in case there's a pre-selected value
+        toggleBuilderQuestions();
+      });
+    </script>
   {% endif %}
 {% endblock %}
 
