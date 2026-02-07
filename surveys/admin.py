@@ -58,8 +58,6 @@ class SurveyResponseAdmin(ImportExportActionModelAdmin):
     def get_export_resource_class(self):
         """Use detailed resource for export"""
         return SurveyResponseDetailedResource
-
-
 @admin.register(SurveyAnswer)
 class SurveyAnswerAdmin(ImportExportModelAdmin):
     """Admin for individual Survey Answers - useful for detailed analysis"""
